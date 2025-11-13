@@ -1,0 +1,208 @@
+model:
+  target: models.unet.UNetModelSwin
+  ckpt_path: ~
+  teacher_ckpt_path: ~
+  params:
+    image_size: 64
+    in_channels: 56
+    model_channels: 160
+    out_channels: 28
+    cond_lq: True
+    attention_resolutions: [8]
+    dropout: 0
+    channel_mult: [1, 2, 2, 4]
+    num_res_blocks: [2, 2, 2, 2]
+    conv_resample: True
+    dims: 2
+    use_fp16: False
+    num_head_channels: 32
+    use_scale_shift_norm: True
+    resblock_updown: False
+    swin_depth: 2
+    swin_embed_dim: 192
+    window_size: 8
+    mlp_ratio: 4
+
+teacher_model:
+  target: models.unet.UNetModelSwin
+  ckpt_path: ~
+  teacher_ckpt_path: model_zoo/weights/resshift_deblur_s4.pth
+  params:
+    image_size: 64
+    in_channels: 3
+    model_channels: 160
+    out_channels: 3
+    cond_lq: True
+    attention_resolutions: [64,32,16,8]
+    dropout: 0
+    channel_mult: [1, 2, 2, 4]
+    num_res_blocks: [2, 2, 2, 2]
+    conv_resample: True
+    dims: 2
+    use_fp16: False
+    num_head_channels: 32
+    use_scale_shift_norm: True
+    resblock_updown: False
+    swin_depth: 2
+    swin_embed_dim: 192
+    window_size: 8
+    mlp_ratio: 4
+    lq_size: 256
+
+autoencoder:
+  target: ldm.models.autoencoder.VQModelTorch
+  ckpt_path: model_zoo/weights/autoencoder_vq_f4.pth
+  use_fp16: True
+  params:
+    embed_dim: 3
+    n_embed: 8192
+    ddconfig:
+      double_z: False
+      z_channels: 3
+      resolution: 256
+      in_channels: 3
+      out_ch: 3
+      ch: 128
+      ch_mult:
+      - 1
+      - 2
+      - 4
+      num_res_blocks: 2
+      attn_resolutions: []
+      dropout: 0.0
+      padding_mode: zeros
+
+diffusion:
+  target: models.script_util.create_gaussian_diffusion
+  params:
+    sf: 1
+    schedule_name: exponential
+    schedule_kwargs:
+      power: 0.3
+    etas_end: 0.99
+    steps: 4
+    min_noise_level: 0.2
+    kappa: 2.0
+    weighted_mse: False
+    predict_type: xstart
+    timestep_respacing: ~
+    scale_factor: 1.0
+    normalize_input: True
+    latent_flag: True
+
+#pretrained:
+#   target: models.pretrained.dauhst.DAUHST
+#   input_setting: Y
+#   input_mask: Phi_PhiPhiT
+#   name: dauhst
+#   params:
+#     num_iterations: 9
+#     pretrained_model_path: model_zoo/Initial_predictor/dauhst_9stg.pth
+
+pretrained:
+   target: models.pretrained.ssr.SSRNet
+   input_setting: SSR
+   input_mask: Phi_PhiPhiT
+   name: ssr
+   params:
+     stage: 9
+     pretrained_model_path: model_zoo/Initial_predictor/ssr_l.pkl
+
+#pretrained:
+#   target: models.pretrained.dpu.DPUNet
+#   input_setting: DPU
+#   input_mask: Phi_PhiPhiT
+#   name: dpu
+#   params:
+#     stage: 9
+#     pretrained_model_path: model_zoo/Initial_predictor/dpu_9stg.pkl
+
+#pretrained:
+#   target: models.pretrained.mst.MST
+#   input_setting: H
+#   input_mask: Phi
+#   name: mst
+
+#pretrained:
+#   target: models.pretrained.padut.PADUT
+#   input_setting: Y
+#   input_mask: Phi_PhiPhiT
+#   name: padut
+#   params:
+#     nums_stages: 2
+#     pretrained_model_path: model_zoo/Initial_predictor/padut_3stg.pth
+
+#pretrained:
+#   target: models.pretrained.hdnet.HDNet
+#   input_setting: H
+#   input_mask: None
+#   name: hdnet
+#   params:
+#     pretrained_model_path: model_zoo/Initial_predictor/hdnet.pth
+
+mask_path: mask
+mask_3d_shift: mask/mask_3d_shift.mat
+
+data:
+  train:
+    type: ntire_train
+    params:
+      file_list: data/NTIRE/ntire_train.list
+
+  val:
+    type: ntire_test
+    name: ntire
+    params:
+      file_list: data/NTIRE/ntire_valid.list
+
+#data:
+#  train:
+#    type: icvl_train
+#    params:
+#      file_list: data/ICVL/icvl_train.list
+#
+#  val:
+#    type: icvl_test
+#    name: icvl
+#    params:
+#      file_list: data/ICVL/icvl_valid.list
+
+#data:
+#  train:
+#    type: harvard_train
+#    params:
+#      file_list: data/Harvard/harvard_train.list
+#
+#  val:
+#    type: harvard_test
+#    name: harvard
+#    params:
+#      file_list: data/Harvard/harvard_valid.list
+
+train:
+  learn_xT: True
+  finetune_use_gt: 1.
+  # xT_cov_loss: 0.1
+  lr: 1e-5
+  batch: [1, 10]   # batchsize for training and validation
+  use_fp16: False
+  microbatch: 64 # 16
+  seed: 123456
+  global_seeding: False
+  prefetch_factor:  4
+  num_workers: 16
+  ema_rate: 0.999
+  iterations: 1000000
+  milestones: [500000]
+  weight_decay: 0
+  save_freq: 2000
+  # val_freq:  10000
+  # log_freq: [1000, 5000, 1] #[training loss, training images, val images]
+  val_freq:  1
+  log_freq: [200, 50000, 1] #[training loss, training images, val images]
+  save_images: True  # save the images of tensorboard loggingc
+  use_ema_val: True
+  loss: DISTILL
+  gpu: 3
+  resume: ~
+  ema_resume: ~
