@@ -103,3 +103,4 @@ This project is based on [ResShift](https://github.com/zsyOAOA/ResShift), [SinSR
 
 ## Citation
 Please cite our paper if you find our work useful. Thanks! 
+S. Huang, Y. Wang, H. Zeng, H. Chen, H. Zhang, Self-Supervised One-Step Diffusion Refinement for Snapshot Compressive Imaging, AAAI, 2025.
