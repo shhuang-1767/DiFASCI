@@ -52,7 +52,7 @@ Download NTIRE ([Baidu Disk](https://pan.baidu.com/s/1Q4HmTfL8aHweBGZcAqRsoQ?pwd
           |--harvard_valid.list
 ```
 
-## Test:
+## Test
 Download the pre-trained model zoo from ([Baidu Disk](https://pan.baidu.com/s/1jS_e8gYutfJ_dMjIhmh1lQ?pwd=mzoo), code:mzoo) and place them to ```\model_zoo\DiFA``` and ```\model_zoo\Init_predictor```. And recollect them in the following form:
 ```
 |--DiFASCI
