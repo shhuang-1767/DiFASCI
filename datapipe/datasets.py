@@ -35,55 +35,10 @@ def create_dataset(dataset_config):
         dataset = HarvardDataTrain(dataset_config['params'])
     elif dataset_config['type'] == 'harvard_test':
         dataset = HarvardDataTest(dataset_config['params'])
-    elif dataset_config['type'] == 'kaist_train':
-        dataset = KAISTDataTrain(dataset_config['params'])
-    elif dataset_config['type'] == 'kaist_test':
-        dataset = KAISTDataTest(dataset_config['params'])
     else:
         raise NotImplementedError(dataset_config['type'])
     return dataset
 
-
-class KAISTDataTrain(Dataset):
-    def __init__(
-            self,
-            file_list,
-            gt_size=256,
-            im_exts=['mat']
-            ):
-        self.file_paths = load_file_list(file_list)
-        self.gt_size = gt_size
-
-    def __len__(self):
-        return len(self.file_paths)
-
-    def __getitem__(self, index):
-        img_gt = LoadCAVETesting(self.file_paths[index])
-        h, w, _ = img_gt.shape
-        #img_gt = shuffle_crop(img_gt)
-        out = torch.from_numpy(img_gt).permute(2, 0, 1)
-        return out
-        
-class KAISTDataTest(Dataset):
-    def __init__(
-            self,
-            file_list,
-            gt_size=256,
-            im_exts=['mat']
-            ):
-        self.file_paths = load_file_list(file_list)
-        self.gt_size = gt_size
-
-    def __len__(self):
-        return len(self.file_paths)
-
-    def __getitem__(self, index):
-        img_gt = LoadCAVETesting(self.file_paths[index])
-        h, w, _ = img_gt.shape
-        out = torch.from_numpy(img_gt)
-        return out.permute(2, 0, 1)
-
-    
 class NTIREDataTrain(Dataset):
     def __init__(
             self,
