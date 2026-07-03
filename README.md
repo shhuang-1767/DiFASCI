@@ -1,6 +1,6 @@
 ## Create Environment
 ```
-conda env create -n DiFA python=3.10
+conda create -n DiFA python=3.10
 conda activate DiFA
 pip install -r requirements.txt
 ```
@@ -82,9 +82,9 @@ python inference_initail -i [image folder/image path] --ckpt [model folder/model
 python inference_initial -i data/NTIRE/ntire_test --ckpt model_zoo/DiFA/DAUSHT-DiFA/dauhst_ntire_difa.pth --pretrained_model dauhst --dataset ntire --gpu cuda:0
 
 # DifASCI (with DiFA)
-python inference_difa -i [image folder/image path] --ckpt [model folder/model path] --pretraine_model [initial predictor] --dataset [dataset] --gpu [gpu_id]
+python inference_difa -i [image folder/image path] --ckpt [model folder/model path] --pretrained_model [initial predictor] --dataset [dataset] --gpu [gpu_id]
 # initial predictor = [hdnet, mst, ssr, dauhst, padut, dpu], dataset = [ntire, icvl，harvard]. If we want to get results of DAUHST-DiFA on NTIRE dataset, we can run below command
-python inference_difa -i data/NTIRE/ntire_test --ckpt model_zoo/DiFA/DAUSHT-DiFA/dauhst_ntire_difa.pth --pretrained_model dauhst --dataset ntire --gpu cuda:0
+python inference_difa -i data/NTIRE/ntire_test --ckpt model_zoo/DiFA/DAUHST-DiFA/dauhst_ntire_difa.pth --pretrained_model dauhst --dataset ntire --gpu cuda:0
 ```
 
 ## Train
